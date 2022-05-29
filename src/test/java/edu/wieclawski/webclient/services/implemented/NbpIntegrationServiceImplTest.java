@@ -24,7 +24,7 @@ class NbpIntegrationServiceImplTest {
 	}
 
 	@Test
-	void testGetATypeRateByNotValidDateAndValidSymbolReturnOk() {
+	void testGetATypeRateByNotValidDateAndValidSymbolThrowsException() {
 		LocalDate date = LocalDate.of(2022, 5, 29); // non business day
 
 		Assertions.assertThrows(RuntimeException.class,
