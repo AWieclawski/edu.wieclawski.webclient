@@ -26,6 +26,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import edu.wieclawski.webclient.dtos.NbpARateDto;
 import edu.wieclawski.webclient.dtos.NbpResponseDto;
+import edu.wieclawski.webclient.exceptions.NbpIntegrationException;
 import edu.wieclawski.webclient.services.NbpIntegrationService;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -88,7 +89,7 @@ public class NbpReactServiceImpl implements NbpIntegrationService {
 		return clientResponse -> clientResponse.bodyToMono(String.class).map(rawResponse -> {
 			LOG.error(rawResponse);
 
-			throw new RuntimeException("NBP integration problem!");
+			throw new NbpIntegrationException("NBP integration problem!");
 		});
 	}
 
