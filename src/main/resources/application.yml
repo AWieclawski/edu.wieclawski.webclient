@@ -1,0 +1,8 @@
+nbp-api:
+  host: http://api.nbp.pl/api/
+  rates:
+    dir: exchangerates
+    range: rates
+    type: a
+    date-pattern: yyyy-MM-dd 
+    format: json

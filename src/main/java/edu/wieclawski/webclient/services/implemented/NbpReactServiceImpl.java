@@ -3,13 +3,16 @@ package edu.wieclawski.webclient.services.implemented;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpConnector;
@@ -23,9 +26,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import edu.wieclawski.webclient.dtos.NbpARateDto;
 import edu.wieclawski.webclient.dtos.NbpResponseDto;
-import edu.wieclawski.webclient.services.NbpARateService;
+import edu.wieclawski.webclient.services.NbpIntegrationService;
+import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.SneakyThrows;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
@@ -37,12 +43,28 @@ import reactor.netty.http.client.HttpClient;
  *
  */
 @Service
-public class NbpIntegrationServiceImpl implements NbpARateService {
+public class NbpReactServiceImpl implements NbpIntegrationService {
 	private final Logger LOG = LoggerFactory.getLogger(this.getClass());
-	private final String NBP_API_URL = "http://api.nbp.pl/api/exchangerates/";
+
+	@Value("${nbp-api.rates.dir}")
+	private String RATES_DIR;
+
+	@Value("${nbp-api.rates.range}")
+	private String SCOPE_DIR;
+
+	@Value("${nbp-api.rates.type}")
+	private String TYPE_DIR;
+
+	@Value("${nbp-api.rates.date-pattern}")
+	private String DATE_PATTERN;
+
+	@Value("${nbp-api.rates.format}")
+	private String FORMAT_DATA;
+
 	private final WebClient webclient;
 
-	public NbpIntegrationServiceImpl() {
+	public NbpReactServiceImpl(
+			@Value("${nbp-api.host}") String NBP_API_URL) {
 		this.webclient = WebClient.builder().filter(loggRequest()).baseUrl(NBP_API_URL)
 				.clientConnector(createClientConnector()).build();
 	}
@@ -51,7 +73,12 @@ public class NbpIntegrationServiceImpl implements NbpARateService {
 	private ClientHttpConnector createClientConnector() {
 		var sslContext = SslContextBuilder.forClient()
 				.trustManager(InsecureTrustManagerFactory.INSTANCE).build();
-		var httpClient = HttpClient.create().secure(con -> con.sslContext(sslContext));
+		var httpClient = HttpClient.create()
+				.secure(con -> con.sslContext(sslContext))
+				.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
+				.doOnConnected(conn -> conn
+						.addHandlerFirst(new ReadTimeoutHandler(5, TimeUnit.SECONDS))
+						.addHandlerFirst(new WriteTimeoutHandler(5)));;
 
 		return new ReactorClientHttpConnector(httpClient);
 	}
@@ -69,7 +96,7 @@ public class NbpIntegrationServiceImpl implements NbpARateService {
 	public List<NbpARateDto> getATypeRateByDateAndSymbol(LocalDate publicationDate,
 			String currencySymbol) {
 		final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		params.setAll(Map.of("format", RATES_DATA_FORMAT));
+		params.setAll(Map.of("format", FORMAT_DATA));
 		final URI fullUri = getARatePathWithDateAndSymbol(publicationDate, currencySymbol);
 		final ParameterizedTypeReference<
 				NbpResponseDto<List<NbpARateDto>>> parameterizedTypeReference =
@@ -89,10 +116,12 @@ public class NbpIntegrationServiceImpl implements NbpARateService {
 	}
 
 	private URI getARatePathWithDateAndSymbol(LocalDate publicationDate, String currencySymbol) {
+		final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
 
 		return buildPathFromVariablesList(List.of(
-				CONVERSION_RATES_PATH.toLowerCase(),
-				RATES_TABLE_TYPE.toLowerCase(), currencySymbol.toLowerCase(),
+				RATES_DIR.toLowerCase(),
+				SCOPE_DIR.toLowerCase(),
+				TYPE_DIR.toLowerCase(), currencySymbol.toLowerCase(),
 				publicationDate.format(DATE_TIME_FORMATTER)));
 	}
 
