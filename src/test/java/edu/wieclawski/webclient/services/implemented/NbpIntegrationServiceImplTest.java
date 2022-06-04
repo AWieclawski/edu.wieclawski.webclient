@@ -43,4 +43,33 @@ class NbpIntegrationServiceImplTest {
 				() -> nbpIntegrationService.getATypeRateByDateAndSymbol(date, "eur"));
 	}
 
+	@Test
+	void getATypeRateByDatesRangeAndSymbollForValidDateAndValidSymbolDoesNotThrow() {
+		LocalDate startDate = LocalDate.of(2022, 5, 23); // business day
+		LocalDate endDate = LocalDate.of(2022, 5, 27); // business day
+
+		Assertions.assertDoesNotThrow(
+				() -> nbpIntegrationService.getATypeRatesByDatesRangeAndSymbol(startDate, endDate, "eur"));
+	}
+
+	@Test
+	void getATypeRateByDatesRangeAndSymbollForValidDateAndValidSymbolReturnProperList() {
+		LocalDate startDate = LocalDate.of(2022, 5, 23); // business day
+		LocalDate endDate = LocalDate.of(2022, 5, 27); // business day
+		List<NbpARateDto> nbpARateDtos =
+				nbpIntegrationService.getATypeRatesByDatesRangeAndSymbol(startDate, endDate, "usd");
+		// 5 business days in range
+		Assertions.assertEquals(nbpARateDtos.size(), 5);
+		Assertions.assertEquals(nbpARateDtos.get(0).getEffectiveDate(), startDate);
+	}
+
+	@Test
+	void getATypeRateByDatesRangeAndSymbollForNotValidSymbolThrowsException() {
+		LocalDate startDate = LocalDate.of(2022, 5, 23); // business day
+		LocalDate endDate = LocalDate.of(2022, 5, 27); // business day
+
+		Assertions.assertThrows(RuntimeException.class,
+				() -> nbpIntegrationService.getATypeRatesByDatesRangeAndSymbol(startDate, endDate, "xyz"));
+	}
+
 }

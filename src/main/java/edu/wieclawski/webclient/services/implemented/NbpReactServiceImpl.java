@@ -98,10 +98,24 @@ public class NbpReactServiceImpl implements NbpIntegrationService {
 		final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.setAll(Map.of("format", FORMAT_DATA));
 		final URI fullUri = getARatePathWithDateAndSymbol(publicationDate, currencySymbol);
-		final ParameterizedTypeReference<
-				NbpResponseDto<List<NbpARateDto>>> parameterizedTypeReference =
-						new ParameterizedTypeReference<NbpResponseDto<List<NbpARateDto>>>() {
-						};
+
+		return getATypeRates(params, fullUri);
+	}
+
+	@Override
+	public List<NbpARateDto> getATypeRatesByDatesRangeAndSymbol(LocalDate startDate, LocalDate endDate,
+			String currencySymbol) {
+		final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.setAll(Map.of("format", FORMAT_DATA));
+		final URI fullUri = getARatePathWithDatesRangeAndSymbol(startDate, endDate, currencySymbol);
+
+		return getATypeRates(params, fullUri);
+	}
+
+	private List<NbpARateDto> getATypeRates(MultiValueMap<String, String> params, URI fullUri) {
+		final ParameterizedTypeReference<NbpResponseDto<List<NbpARateDto>>> parameterizedTypeReference =
+				new ParameterizedTypeReference<NbpResponseDto<List<NbpARateDto>>>() {
+				};
 		var response = this.webclient.get()
 				.uri(uriBuilder -> uriBuilder.path(fullUri.toString())
 						.queryParams(params)
@@ -115,6 +129,7 @@ public class NbpReactServiceImpl implements NbpIntegrationService {
 		return response != null ? response.getRates() : null;
 	}
 
+	// http://api.nbp.pl/api/exchangerates/rates/{table}/code}/{date}/
 	private URI getARatePathWithDateAndSymbol(LocalDate publicationDate, String currencySymbol) {
 		final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
 
@@ -123,6 +138,18 @@ public class NbpReactServiceImpl implements NbpIntegrationService {
 				SCOPE_DIR.toLowerCase(),
 				TYPE_DIR.toLowerCase(), currencySymbol.toLowerCase(),
 				publicationDate.format(DATE_TIME_FORMATTER)));
+	}
+
+	// http://api.nbp.pl/api/exchangerates/rates/{table}/{code}/{startDate}/{endDate}/
+	private URI getARatePathWithDatesRangeAndSymbol(LocalDate startDate, LocalDate endDate, String currencySymbol) {
+		final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
+
+		return buildPathFromVariablesList(List.of(
+				RATES_DIR.toLowerCase(),
+				SCOPE_DIR.toLowerCase(),
+				TYPE_DIR.toLowerCase(), currencySymbol.toLowerCase(),
+				startDate.format(DATE_TIME_FORMATTER),
+				endDate.format(DATE_TIME_FORMATTER)));
 	}
 
 	private URI buildPathFromVariablesList(List<String> pathVariables) {
