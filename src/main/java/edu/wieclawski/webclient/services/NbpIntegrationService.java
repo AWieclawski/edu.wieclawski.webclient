@@ -7,7 +7,7 @@ import edu.wieclawski.webclient.dtos.NbpARateDto;
 
 public interface NbpIntegrationService {
 
-	List<NbpARateDto> getATypeRateByDateAndSymbol(LocalDate publicatiopnDate, String currencySymbol);
+	List<NbpARateDto> getATypeRateByDateAndSymbol(LocalDate publicationDate, String currencySymbol);
 
 	List<NbpARateDto> getATypeRatesByDatesRangeAndSymbol(LocalDate startDate, LocalDate endDate,
 			String currencySymbol);

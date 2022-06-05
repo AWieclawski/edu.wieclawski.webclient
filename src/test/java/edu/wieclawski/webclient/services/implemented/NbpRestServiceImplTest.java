@@ -9,13 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import edu.wieclawski.webclient.dtos.NbpARateDto;
-import edu.wieclawski.webclient.services.NbpIntegrationService;
+import edu.wieclawski.webclient.services.NbpRestService;
 
 @SpringBootTest
-class NbpIntegrationServiceImplTest {
+class NbpRestServiceImplTest {
 
 	@Autowired
-	private NbpIntegrationService nbpIntegrationService;
+	private NbpRestService nbpIntegrationService;
 
 	@Test
 	void testGetATypeRateByValidDateAndValidSymbolDoesNotThrow() {

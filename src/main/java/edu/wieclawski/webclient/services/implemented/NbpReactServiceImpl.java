@@ -27,7 +27,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import edu.wieclawski.webclient.dtos.NbpARateDto;
 import edu.wieclawski.webclient.dtos.NbpResponseDto;
 import edu.wieclawski.webclient.exceptions.NbpIntegrationException;
-import edu.wieclawski.webclient.services.NbpIntegrationService;
+import edu.wieclawski.webclient.services.NbpReactService;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
@@ -40,11 +40,11 @@ import reactor.netty.http.client.HttpClient;
 /**
  * http://api.nbp.pl/#kursySingle
  * 
- * @author awieclawski
+ * @author awieclawski according to https://www.baeldung.com/spring-5-webclient
  *
  */
 @Service
-public class NbpReactServiceImpl implements NbpIntegrationService {
+public class NbpReactServiceImpl implements NbpReactService {
 	private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
 	@Value("${nbp-api.rates.dir}")
