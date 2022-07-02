@@ -137,7 +137,8 @@ public class NbpReactServiceImpl implements NbpReactService {
 		return buildPathFromVariablesList(List.of(
 				RATES_DIR.toLowerCase(),
 				SCOPE_DIR.toLowerCase(),
-				TYPE_DIR.toLowerCase(), currencySymbol.toLowerCase(),
+				TYPE_DIR.toLowerCase(),
+				currencySymbol.toLowerCase(),
 				publicationDate.format(DATE_TIME_FORMATTER)));
 	}
 
@@ -148,7 +149,8 @@ public class NbpReactServiceImpl implements NbpReactService {
 		return buildPathFromVariablesList(List.of(
 				RATES_DIR.toLowerCase(),
 				SCOPE_DIR.toLowerCase(),
-				TYPE_DIR.toLowerCase(), currencySymbol.toLowerCase(),
+				TYPE_DIR.toLowerCase(),
+				currencySymbol.toLowerCase(),
 				startDate.format(DATE_TIME_FORMATTER),
 				endDate.format(DATE_TIME_FORMATTER)));
 	}

@@ -98,14 +98,15 @@ public class NbpRestServiceImpl implements NbpRestService {
 		throw new RuntimeException("NBP url building problem!");
 	}
 
-	// http://api.nbp.pl/api/exchangerates/rates/{table}/code}/{date}/
+	// http://api.nbp.pl/api/exchangerates/rates/{table}/{code}/{date}/
 	private URI getARatePathWithDateAndSymbol(LocalDate publicationDate, String currencySymbol) {
 		final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
 
 		return getSafeUriPath(List.of(
 				RATES_DIR.toLowerCase(),
 				SCOPE_DIR.toLowerCase(),
-				TYPE_DIR.toLowerCase(), currencySymbol.toLowerCase(),
+				TYPE_DIR.toLowerCase(),
+				currencySymbol.toLowerCase(),
 				publicationDate.format(DATE_TIME_FORMATTER)));
 	}
 
@@ -116,7 +117,8 @@ public class NbpRestServiceImpl implements NbpRestService {
 		return getSafeUriPath(List.of(
 				RATES_DIR.toLowerCase(),
 				SCOPE_DIR.toLowerCase(),
-				TYPE_DIR.toLowerCase(), currencySymbol.toLowerCase(),
+				TYPE_DIR.toLowerCase(),
+				currencySymbol.toLowerCase(),
 				startDate.format(DATE_TIME_FORMATTER),
 				endDate.format(DATE_TIME_FORMATTER)));
 	}
